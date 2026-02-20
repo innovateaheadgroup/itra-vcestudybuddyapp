@@ -38,8 +38,12 @@ def run_code(
     current_user: User = Depends(get_current_user),
 ) -> CodeRunResponse:
     code_limiter.check(f"{current_user.id}:code-run")
-    result = run_python_tests(payload.code, payload.tests_public, timeout_seconds=settings.code_run_timeout_seconds)
-    return CodeRunResponse(passed=result.passed, output=result.output, failed_test=result.failed_test)
+    result = run_python_tests(
+        payload.code, payload.tests_public, timeout_seconds=settings.code_run_timeout_seconds
+    )
+    return CodeRunResponse(
+        passed=result.passed, output=result.output, failed_test=result.failed_test
+    )
 
 
 @router.post("/code-lab/snapshots", response_model=CodeSnapshotOut)
@@ -66,7 +70,9 @@ def list_snapshots(
     current_user: User = Depends(get_current_user),
 ) -> list[CodeSnapshotOut]:
     snapshots = db.scalars(
-        select(CodeSnapshot).where(CodeSnapshot.user_id == current_user.id).order_by(CodeSnapshot.created_at.desc())
+        select(CodeSnapshot)
+        .where(CodeSnapshot.user_id == current_user.id)
+        .order_by(CodeSnapshot.created_at.desc())
     ).all()
     return [CodeSnapshotOut.model_validate(s) for s in snapshots]
 
@@ -103,7 +109,9 @@ async def upload_csv(
     contents = await file.read()
     size_mb = len(contents) / (1024 * 1024)
     if size_mb > settings.max_upload_size_mb:
-        raise HTTPException(status_code=400, detail=f"Upload exceeds {settings.max_upload_size_mb} MB limit.")
+        raise HTTPException(
+            status_code=400, detail=f"Upload exceeds {settings.max_upload_size_mb} MB limit."
+        )
 
     filename = file.filename or "dataset.csv"
     storage_ref = UPLOAD_DIR / f"{current_user.id}_{filename}"
@@ -144,12 +152,16 @@ def save_chart_config(
     current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
     dataset = db.scalar(
-        select(DatasetAsset).where(DatasetAsset.id == payload.dataset_id, DatasetAsset.user_id == current_user.id)
+        select(DatasetAsset).where(
+            DatasetAsset.id == payload.dataset_id, DatasetAsset.user_id == current_user.id
+        )
     )
     if not dataset:
         raise HTTPException(status_code=404, detail="Dataset not found")
 
-    chart = DataChartConfig(dataset_id=dataset.id, user_id=current_user.id, config_json=payload.config_json)
+    chart = DataChartConfig(
+        dataset_id=dataset.id, user_id=current_user.id, config_json=payload.config_json
+    )
     db.add(chart)
     db.commit()
     db.refresh(chart)

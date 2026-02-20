@@ -81,13 +81,25 @@ class MockBuddyProvider(BuddyProvider):
                 "Have you mapped each sentence to at least one mark?",
             ],
             mini_drill="In 3 lines: claim -> evidence -> justification. Keep each line under 20 words.",
-            checklist_aligned_to_marks=[f"Mark {i + 1}: explicit criterion evidence" for i in range(marks)],
+            checklist_aligned_to_marks=[
+                f"Mark {i + 1}: explicit criterion evidence" for i in range(marks)
+            ],
             feedback=FeedbackObject(
                 score=max(1, marks - 1),
                 max_score=marks,
                 criteria=[
-                    {"name": "Concept accuracy", "score": 1, "max": 1, "notes": ["Terminology mostly correct."]},
-                    {"name": "Evidence use", "score": 1, "max": 1, "notes": ["Add specific evidence."]},
+                    {
+                        "name": "Concept accuracy",
+                        "score": 1,
+                        "max": 1,
+                        "notes": ["Terminology mostly correct."],
+                    },
+                    {
+                        "name": "Evidence use",
+                        "score": 1,
+                        "max": 1,
+                        "notes": ["Add specific evidence."],
+                    },
                     {
                         "name": "Reasoning depth",
                         "score": max(0, marks - 2),

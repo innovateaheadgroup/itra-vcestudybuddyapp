@@ -35,7 +35,9 @@ class Settings(BaseSettings):
 
     @property
     def buddy_refusal_patterns(self) -> list[str]:
-        return [pattern.strip().lower() for pattern in self.buddy_scoring_refusal_patterns.split(",")]
+        return [
+            pattern.strip().lower() for pattern in self.buddy_scoring_refusal_patterns.split(",")
+        ]
 
 
 @lru_cache

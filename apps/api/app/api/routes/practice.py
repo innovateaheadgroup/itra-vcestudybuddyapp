@@ -11,7 +11,11 @@ router = APIRouter(prefix="/practice", tags=["practice"])
 
 @router.post("/set-builder", response_model=PracticeSetResponse)
 def build_set(payload: SetBuilderRequest, db: Session = Depends(get_db)) -> PracticeSetResponse:
-    query = select(Question).join(Topic, Question.topic_id == Topic.id).join(Subject, Topic.subject_id == Subject.id)
+    query = (
+        select(Question)
+        .join(Topic, Question.topic_id == Topic.id)
+        .join(Subject, Topic.subject_id == Subject.id)
+    )
 
     if payload.subject_code:
         query = query.where(Subject.code == payload.subject_code)

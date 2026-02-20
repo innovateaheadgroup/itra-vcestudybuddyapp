@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-interface SetBuilderPayload {
+export interface SetBuilderPayload {
   number_of_questions: number
   time_target_minutes: number
   mixed_topics: boolean

@@ -8,31 +8,21 @@ from app.models.models import EvidenceLog, SATMilestone, SATProject
 def generate_sat_export_html(
     project: SATProject, milestones: list[SATMilestone], evidence_logs: list[EvidenceLog]
 ) -> str:
-    milestone_html = "".join(
-        [
-            f"""
+    milestone_html = "".join([f"""
             <section>
               <h3>Part {m.part}</h3>
               <pre>{escape(str(m.checklist_json))}</pre>
               <pre>{escape(str(m.status_json))}</pre>
               <pre>{escape(str(m.due_dates_json))}</pre>
             </section>
-            """
-            for m in milestones
-        ]
-    )
-    evidence_html = "".join(
-        [
-            f"""
+            """ for m in milestones])
+    evidence_html = "".join([f"""
             <article>
               <h4>{escape(log.entry_type.title())}</h4>
               <p>{escape(log.content_md)}</p>
               <pre>{escape(str(log.attachment_refs_json))}</pre>
             </article>
-            """
-            for log in evidence_logs
-        ]
-    )
+            """ for log in evidence_logs])
 
     return f"""<!doctype html>
 <html lang="en">

@@ -47,7 +47,11 @@ def list_topics(
             status = "Ready"
 
         estimated_time = (
-            db.scalar(select(func.coalesce(func.sum(Lesson.estimated_minutes), 20)).where(Lesson.topic_id == topic.id))
+            db.scalar(
+                select(func.coalesce(func.sum(Lesson.estimated_minutes), 20)).where(
+                    Lesson.topic_id == topic.id
+                )
+            )
             or 20
         )
         cards.append(
@@ -63,5 +67,7 @@ def list_topics(
 
 @router.get("/topics/{topic_id}/lessons", response_model=list[LessonOut])
 def list_lessons(topic_id: int, db: Session = Depends(get_db)) -> list[LessonOut]:
-    lessons = db.scalars(select(Lesson).where(Lesson.topic_id == topic_id).order_by(Lesson.id)).all()
+    lessons = db.scalars(
+        select(Lesson).where(Lesson.topic_id == topic_id).order_by(Lesson.id)
+    ).all()
     return [LessonOut.model_validate(lesson) for lesson in lessons]

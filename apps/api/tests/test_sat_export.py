@@ -3,7 +3,9 @@ from app.services.sat_export import generate_sat_export_html
 
 
 def test_sat_export_html_generation() -> None:
-    project = SATProject(id=1, user_id=1, subject_id=1, title="SAT Demo", context_md="Context section")
+    project = SATProject(
+        id=1, user_id=1, subject_id=1, title="SAT Demo", context_md="Context section"
+    )
     milestones = [
         SATMilestone(
             id=1,

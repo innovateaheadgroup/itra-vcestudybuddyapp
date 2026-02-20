@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { CommandTermBadge } from '../components/CommandTermBadge'
 import { FeedbackPanel } from '../components/FeedbackPanel'
-import { SetBuilder } from '../components/SetBuilder'
+import { SetBuilder, type SetBuilderPayload } from '../components/SetBuilder'
 import { useAppContext } from '../context/AppContext'
 import { api, type MarkResponse, type Question } from '../lib/api'
 
@@ -22,7 +22,7 @@ export function PracticePage() {
 
   const currentQuestion = questions[currentIndex]
 
-  async function buildSet(payload: Record<string, unknown>) {
+  async function buildSet(payload: SetBuilderPayload) {
     const data = await api.post<PracticeSetResponse>('/api/practice/set-builder', payload)
     setQuestions(data.questions)
     setCurrentIndex(0)

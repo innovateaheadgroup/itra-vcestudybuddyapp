@@ -104,7 +104,9 @@ export function DataLabPage() {
 
           <section className="rounded-xl border bg-white p-4 shadow-sm">
             <h3 className="text-base font-semibold">Insight writing panel</h3>
-            <p className="text-xs text-slate-500">Template: Claim -> Evidence -> Explanation -> Limitation</p>
+            <p className="text-xs text-slate-500">
+              Template: Claim -&gt; Evidence -&gt; Explanation -&gt; Limitation
+            </p>
             <textarea
               value={insightDraft}
               onChange={(e) => setInsightDraft(e.target.value)}

@@ -8,6 +8,7 @@ Create Date: 2026-02-20 00:00:00.000000
 from collections.abc import Sequence
 
 import sqlalchemy as sa
+
 from alembic import op
 
 # revision identifiers, used by Alembic.
@@ -24,21 +25,29 @@ def upgrade() -> None:
         sa.Column("email", sa.String(length=255), nullable=False, unique=True),
         sa.Column("password_hash", sa.String(length=255), nullable=False),
         sa.Column("role", sa.String(length=20), nullable=False, server_default="student"),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_users_email", "users", ["email"], unique=True)
 
     op.create_table(
         "password_reset_tokens",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("token", sa.String(length=255), nullable=False, unique=True),
         sa.Column("expires_at", sa.DateTime(timezone=True), nullable=False),
         sa.Column("used_at", sa.DateTime(timezone=True), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_password_reset_tokens_user_id", "password_reset_tokens", ["user_id"])
-    op.create_index("ix_password_reset_tokens_token", "password_reset_tokens", ["token"], unique=True)
+    op.create_index(
+        "ix_password_reset_tokens_token", "password_reset_tokens", ["token"], unique=True
+    )
 
     op.create_table(
         "subjects",
@@ -51,13 +60,20 @@ def upgrade() -> None:
     op.create_table(
         "topics",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("subject_id", sa.Integer(), sa.ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "subject_id",
+            sa.Integer(),
+            sa.ForeignKey("subjects.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("unit", sa.Integer(), nullable=False),
         sa.Column("aos", sa.String(length=120), nullable=False),
         sa.Column("outcome", sa.String(length=120), nullable=False),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("order", sa.Integer(), nullable=False),
-        sa.Column("key_skills_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
+        sa.Column(
+            "key_skills_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")
+        ),
         sa.UniqueConstraint("subject_id", "unit", "order", name="uq_topic_subject_unit_order"),
     )
     op.create_index("ix_topics_subject_id", "topics", ["subject_id"])
@@ -66,7 +82,9 @@ def upgrade() -> None:
     op.create_table(
         "lessons",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("content_md", sa.Text(), nullable=False),
         sa.Column("estimated_minutes", sa.Integer(), nullable=False, server_default="30"),
@@ -76,22 +94,33 @@ def upgrade() -> None:
     op.create_table(
         "dataset_assets",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+        ),
         sa.Column("filename", sa.String(length=255), nullable=False),
         sa.Column("storage_ref", sa.String(length=500), nullable=False),
         sa.Column("columns_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
 
     op.create_table(
         "data_chart_configs",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column(
-            "dataset_id", sa.Integer(), sa.ForeignKey("dataset_assets.id", ondelete="CASCADE"), nullable=False
+            "dataset_id",
+            sa.Integer(),
+            sa.ForeignKey("dataset_assets.id", ondelete="CASCADE"),
+            nullable=False,
         ),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("config_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_data_chart_configs_dataset_id", "data_chart_configs", ["dataset_id"])
     op.create_index("ix_data_chart_configs_user_id", "data_chart_configs", ["user_id"])
@@ -99,7 +128,9 @@ def upgrade() -> None:
     op.create_table(
         "questions",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("type", sa.String(length=30), nullable=False),
         sa.Column("exam_style", sa.String(length=30), nullable=False),
         sa.Column("command_terms", sa.JSON(), nullable=False, server_default=sa.text("'[]'::json")),
@@ -122,15 +153,24 @@ def upgrade() -> None:
     op.create_table(
         "attempts",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("question_id", sa.Integer(), sa.ForeignKey("questions.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
+        sa.Column(
+            "question_id",
+            sa.Integer(),
+            sa.ForeignKey("questions.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("answer_text", sa.Text(), nullable=True),
         sa.Column("code_snapshot", sa.Text(), nullable=True),
         sa.Column("score", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("max_score", sa.Integer(), nullable=False, server_default="0"),
         sa.Column("feedback_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
         sa.Column("mistake_tags", sa.JSON(), nullable=False, server_default=sa.text("'[]'::json")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_attempts_user_id", "attempts", ["user_id"])
     op.create_index("ix_attempts_question_id", "attempts", ["question_id"])
@@ -138,8 +178,12 @@ def upgrade() -> None:
     op.create_table(
         "mastery",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
+        sa.Column(
+            "topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("mastery_score", sa.Float(), nullable=False, server_default="0"),
         sa.Column("last_practiced_at", sa.DateTime(timezone=True), nullable=True),
         sa.UniqueConstraint("user_id", "topic_id", name="uq_mastery_user_topic"),
@@ -150,10 +194,21 @@ def upgrade() -> None:
     op.create_table(
         "quickwins_queue",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=True),
-        sa.Column("question_id", sa.Integer(), sa.ForeignKey("questions.id", ondelete="CASCADE"), nullable=True),
-        sa.Column("next_due_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
+        sa.Column(
+            "topic_id", sa.Integer(), sa.ForeignKey("topics.id", ondelete="CASCADE"), nullable=True
+        ),
+        sa.Column(
+            "question_id",
+            sa.Integer(),
+            sa.ForeignKey("questions.id", ondelete="CASCADE"),
+            nullable=True,
+        ),
+        sa.Column(
+            "next_due_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
         sa.Column("interval_days", sa.Integer(), nullable=False, server_default="1"),
         sa.Column("ease_factor", sa.Float(), nullable=False, server_default="2.5"),
     )
@@ -162,7 +217,12 @@ def upgrade() -> None:
     op.create_table(
         "projects",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("subject_id", sa.Integer(), sa.ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "subject_id",
+            sa.Integer(),
+            sa.ForeignKey("subjects.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("unit", sa.Integer(), nullable=False),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("brief_md", sa.Text(), nullable=False),
@@ -174,13 +234,22 @@ def upgrade() -> None:
     op.create_table(
         "project_submissions",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("project_id", sa.Integer(), sa.ForeignKey("projects.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "project_id",
+            sa.Integer(),
+            sa.ForeignKey("projects.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("submission_type", sa.String(length=20), nullable=False),
         sa.Column("content_ref", sa.Text(), nullable=False),
         sa.Column("reflection_md", sa.Text(), nullable=True),
         sa.Column("feedback_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_project_submissions_project_id", "project_submissions", ["project_id"])
     op.create_index("ix_project_submissions_user_id", "project_submissions", ["user_id"])
@@ -188,11 +257,20 @@ def upgrade() -> None:
     op.create_table(
         "sat_projects",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("subject_id", sa.Integer(), sa.ForeignKey("subjects.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
+        sa.Column(
+            "subject_id",
+            sa.Integer(),
+            sa.ForeignKey("subjects.id", ondelete="CASCADE"),
+            nullable=False,
+        ),
         sa.Column("title", sa.String(length=255), nullable=False),
         sa.Column("context_md", sa.Text(), nullable=False),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_sat_projects_user_id", "sat_projects", ["user_id"])
     op.create_index("ix_sat_projects_subject_id", "sat_projects", ["subject_id"])
@@ -201,12 +279,19 @@ def upgrade() -> None:
         "sat_milestones",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column(
-            "sat_project_id", sa.Integer(), sa.ForeignKey("sat_projects.id", ondelete="CASCADE"), nullable=False
+            "sat_project_id",
+            sa.Integer(),
+            sa.ForeignKey("sat_projects.id", ondelete="CASCADE"),
+            nullable=False,
         ),
         sa.Column("part", sa.Integer(), nullable=False),
-        sa.Column("checklist_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
+        sa.Column(
+            "checklist_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")
+        ),
         sa.Column("status_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
-        sa.Column("due_dates_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
+        sa.Column(
+            "due_dates_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")
+        ),
     )
     op.create_index("ix_sat_milestones_sat_project_id", "sat_milestones", ["sat_project_id"])
 
@@ -214,23 +299,34 @@ def upgrade() -> None:
         "evidence_logs",
         sa.Column("id", sa.Integer(), primary_key=True),
         sa.Column(
-            "sat_project_id", sa.Integer(), sa.ForeignKey("sat_projects.id", ondelete="CASCADE"), nullable=False
+            "sat_project_id",
+            sa.Integer(),
+            sa.ForeignKey("sat_projects.id", ondelete="CASCADE"),
+            nullable=False,
         ),
         sa.Column("entry_type", sa.String(length=30), nullable=False),
         sa.Column("content_md", sa.Text(), nullable=False),
-        sa.Column("attachment_refs_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "attachment_refs_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")
+        ),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_evidence_logs_sat_project_id", "evidence_logs", ["sat_project_id"])
 
     op.create_table(
         "code_snapshots",
         sa.Column("id", sa.Integer(), primary_key=True),
-        sa.Column("user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column(
+            "user_id", sa.Integer(), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+        ),
         sa.Column("filename", sa.String(length=255), nullable=False),
         sa.Column("content", sa.Text(), nullable=False),
         sa.Column("metadata_json", sa.JSON(), nullable=False, server_default=sa.text("'{}'::json")),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column(
+            "created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False
+        ),
     )
     op.create_index("ix_code_snapshots_user_id", "code_snapshots", ["user_id"])
 

@@ -45,7 +45,9 @@ def mark_attempt(
     db.add(attempt)
 
     mastery = db.scalar(
-        select(Mastery).where(Mastery.user_id == current_user.id, Mastery.topic_id == question.topic_id)
+        select(Mastery).where(
+            Mastery.user_id == current_user.id, Mastery.topic_id == question.topic_id
+        )
     )
     ratio = result.feedback.score / max(1, result.feedback.max_score)
     if not mastery:
@@ -57,7 +59,9 @@ def mark_attempt(
         )
         db.add(mastery)
     else:
-        mastery.mastery_score = max(0.0, min(1.0, round(mastery.mastery_score * 0.7 + ratio * 0.3, 3)))
+        mastery.mastery_score = max(
+            0.0, min(1.0, round(mastery.mastery_score * 0.7 + ratio * 0.3, 3))
+        )
         mastery.last_practiced_at = datetime.now(UTC)
 
     if result.feedback.score < result.feedback.max_score:

@@ -48,10 +48,14 @@ class Subject(Base):
 
 class Topic(Base):
     __tablename__ = "topics"
-    __table_args__ = (UniqueConstraint("subject_id", "unit", "order", name="uq_topic_subject_unit_order"),)
+    __table_args__ = (
+        UniqueConstraint("subject_id", "unit", "order", name="uq_topic_subject_unit_order"),
+    )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"), index=True)
+    subject_id: Mapped[int] = mapped_column(
+        ForeignKey("subjects.id", ondelete="CASCADE"), index=True
+    )
     unit: Mapped[int] = mapped_column(Integer, index=True)
     aos: Mapped[str] = mapped_column(String(120))
     outcome: Mapped[str] = mapped_column(String(120))
@@ -80,7 +84,9 @@ class DatasetAsset(Base, TimestampMixin):
     __tablename__ = "dataset_assets"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    user_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    user_id: Mapped[int | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
     filename: Mapped[str] = mapped_column(String(255))
     storage_ref: Mapped[str] = mapped_column(String(500))
     columns_json: Mapped[dict] = mapped_column(JSON, default=dict)
@@ -90,7 +96,9 @@ class DataChartConfig(Base, TimestampMixin):
     __tablename__ = "data_chart_configs"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    dataset_id: Mapped[int] = mapped_column(ForeignKey("dataset_assets.id", ondelete="CASCADE"), index=True)
+    dataset_id: Mapped[int] = mapped_column(
+        ForeignKey("dataset_assets.id", ondelete="CASCADE"), index=True
+    )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     config_json: Mapped[dict] = mapped_column(JSON, default=dict)
 
@@ -124,7 +132,9 @@ class Attempt(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    question_id: Mapped[int] = mapped_column(ForeignKey("questions.id", ondelete="CASCADE"), index=True)
+    question_id: Mapped[int] = mapped_column(
+        ForeignKey("questions.id", ondelete="CASCADE"), index=True
+    )
     answer_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     code_snapshot: Mapped[str | None] = mapped_column(Text, nullable=True)
     score: Mapped[int] = mapped_column(Integer, default=0)
@@ -144,7 +154,9 @@ class Mastery(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     topic_id: Mapped[int] = mapped_column(ForeignKey("topics.id", ondelete="CASCADE"), index=True)
     mastery_score: Mapped[float] = mapped_column(Float, default=0.0)
-    last_practiced_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_practiced_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     user: Mapped["User"] = relationship(back_populates="mastery_items")
 
@@ -154,11 +166,15 @@ class QuickWinsQueue(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    topic_id: Mapped[int | None] = mapped_column(ForeignKey("topics.id", ondelete="CASCADE"), nullable=True)
+    topic_id: Mapped[int | None] = mapped_column(
+        ForeignKey("topics.id", ondelete="CASCADE"), nullable=True
+    )
     question_id: Mapped[int | None] = mapped_column(
         ForeignKey("questions.id", ondelete="CASCADE"), nullable=True
     )
-    next_due_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    next_due_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
     interval_days: Mapped[int] = mapped_column(Integer, default=1)
     ease_factor: Mapped[float] = mapped_column(Float, default=2.5)
 
@@ -169,7 +185,9 @@ class Project(Base):
     __tablename__ = "projects"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"), index=True)
+    subject_id: Mapped[int] = mapped_column(
+        ForeignKey("subjects.id", ondelete="CASCADE"), index=True
+    )
     unit: Mapped[int] = mapped_column(Integer, index=True)
     title: Mapped[str] = mapped_column(String(255))
     brief_md: Mapped[str] = mapped_column(Text)
@@ -183,7 +201,9 @@ class ProjectSubmission(Base, TimestampMixin):
     __tablename__ = "project_submissions"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    project_id: Mapped[int] = mapped_column(ForeignKey("projects.id", ondelete="CASCADE"), index=True)
+    project_id: Mapped[int] = mapped_column(
+        ForeignKey("projects.id", ondelete="CASCADE"), index=True
+    )
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
     submission_type: Mapped[str] = mapped_column(String(20))
     content_ref: Mapped[str] = mapped_column(Text)
@@ -198,7 +218,9 @@ class SATProject(Base, TimestampMixin):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id", ondelete="CASCADE"), index=True)
+    subject_id: Mapped[int] = mapped_column(
+        ForeignKey("subjects.id", ondelete="CASCADE"), index=True
+    )
     title: Mapped[str] = mapped_column(String(255))
     context_md: Mapped[str] = mapped_column(Text)
 

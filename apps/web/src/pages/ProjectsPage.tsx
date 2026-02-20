@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import ReactMarkdown from 'react-markdown'
 import rehypeSanitize from 'rehype-sanitize'
@@ -34,28 +34,26 @@ export function ProjectsPage() {
   const [contentRef, setContentRef] = useState('')
   const [reflection, setReflection] = useState('')
 
-  async function loadProjects() {
+  const loadProjects = useCallback(async () => {
     const subjectId = subjectCode === 'SOFTDEV' ? 1 : 2
     const data = await api.get<Project[]>(`/api/projects?subject_id=${subjectId}&unit=${Math.min(unit, 2)}`)
     setProjects(data)
-    if (!selectedProject && data.length > 0) {
-      setSelectedProject(data[0])
-    }
-  }
+    setSelectedProject((previous) => previous ?? data[0] ?? null)
+  }, [subjectCode, unit])
 
-  async function loadSubmissions(projectId: number) {
+  const loadSubmissions = useCallback(async (projectId: number) => {
     const data = await api.get<Submission[]>(`/api/projects/${projectId}/submissions`)
     setSubmissions(data)
-  }
+  }, [])
 
   useEffect(() => {
     void loadProjects()
-  }, [subjectCode, unit])
+  }, [loadProjects])
 
   useEffect(() => {
     if (!selectedProject) return
     void loadSubmissions(selectedProject.id)
-  }, [selectedProject])
+  }, [selectedProject, loadSubmissions])
 
   return (
     <div className="space-y-4">

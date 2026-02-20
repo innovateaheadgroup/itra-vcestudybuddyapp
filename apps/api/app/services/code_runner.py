@@ -14,7 +14,14 @@ class CodeRunResult:
     failed_test: str | None = None
 
 
-FORBIDDEN_SNIPPETS = ["import os", "import subprocess", "__import__", "open(", "socket.", "pathlib.Path("]
+FORBIDDEN_SNIPPETS = [
+    "import os",
+    "import subprocess",
+    "__import__",
+    "open(",
+    "socket.",
+    "pathlib.Path(",
+]
 
 
 def _contains_forbidden(code: str) -> str | None:
@@ -35,8 +42,7 @@ def run_python_tests(code: str, tests: str | None, timeout_seconds: int = 3) -> 
         )
 
     test_block = tests or "assert True"
-    runner = textwrap.dedent(
-        f"""
+    runner = textwrap.dedent(f"""
         import resource
 
         # Set a soft execution boundary for sandbox placeholder.
@@ -53,8 +59,7 @@ def run_python_tests(code: str, tests: str | None, timeout_seconds: int = 3) -> 
         except Exception as exc:
             print("__FAIL__")
             print(type(exc).__name__ + ": " + str(exc))
-        """
-    )
+        """)
 
     with tempfile.TemporaryDirectory(prefix="vce_code_run_") as tmp_dir:
         path = Path(tmp_dir) / "runner.py"
@@ -72,6 +77,8 @@ def run_python_tests(code: str, tests: str | None, timeout_seconds: int = 3) -> 
 
     output = (proc.stdout + "\n" + proc.stderr).strip()
     if "__PASS__" in output:
-        return CodeRunResult(passed=True, output=output.replace("__PASS__", "").strip() or "All tests passed.")
+        return CodeRunResult(
+            passed=True, output=output.replace("__PASS__", "").strip() or "All tests passed."
+        )
     failure = output.split("__FAIL__")[-1].strip() if "__FAIL__" in output else output
     return CodeRunResult(passed=False, output=output, failed_test=failure or "Test failure")

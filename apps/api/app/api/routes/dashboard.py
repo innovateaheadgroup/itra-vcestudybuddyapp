@@ -12,22 +12,32 @@ router = APIRouter(prefix="/dashboard", tags=["dashboard"])
 
 
 @router.get("")
-def dashboard(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> dict:
+def dashboard(
+    db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+) -> dict:
     one_week_ago = datetime.now(UTC) - timedelta(days=7)
     attempts_week = db.scalar(
         select(func.count(Attempt.id)).where(
             and_(Attempt.user_id == current_user.id, Attempt.created_at >= one_week_ago)
         )
     )
-    avg_score = db.scalar(select(func.avg(Attempt.score)).where(Attempt.user_id == current_user.id)) or 0
-    avg_max = db.scalar(select(func.avg(Attempt.max_score)).where(Attempt.user_id == current_user.id)) or 1
+    avg_score = (
+        db.scalar(select(func.avg(Attempt.score)).where(Attempt.user_id == current_user.id)) or 0
+    )
+    avg_max = (
+        db.scalar(select(func.avg(Attempt.max_score)).where(Attempt.user_id == current_user.id))
+        or 1
+    )
     due_quickwins = db.scalar(
         select(func.count(QuickWinsQueue.id)).where(
-            QuickWinsQueue.user_id == current_user.id, QuickWinsQueue.next_due_at <= datetime.now(UTC)
+            QuickWinsQueue.user_id == current_user.id,
+            QuickWinsQueue.next_due_at <= datetime.now(UTC),
         )
     )
     weak_topics = db.scalar(
-        select(func.count(Mastery.id)).where(Mastery.user_id == current_user.id, Mastery.mastery_score < 0.5)
+        select(func.count(Mastery.id)).where(
+            Mastery.user_id == current_user.id, Mastery.mastery_score < 0.5
+        )
     )
     return {
         "attempts_last_7_days": int(attempts_week or 0),

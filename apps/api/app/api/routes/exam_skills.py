@@ -103,7 +103,9 @@ def timed_practice(
     weak_topics = db.scalars(
         select(Topic)
         .join(Mastery, Mastery.topic_id == Topic.id, isouter=True)
-        .where((Mastery.user_id == current_user.id) | (Mastery.user_id.is_(None)), Topic.unit == unit)
+        .where(
+            (Mastery.user_id == current_user.id) | (Mastery.user_id.is_(None)), Topic.unit == unit
+        )
         .order_by(asc(Mastery.mastery_score).nullsfirst(), Topic.order)
         .limit(5)
     ).all()

@@ -90,7 +90,9 @@ def mark_question(
     score = 0
 
     if question.type == "mcq":
-        expected = _norm((question.correct_json or {}).get("answer")) if question.correct_json else ""
+        expected = (
+            _norm((question.correct_json or {}).get("answer")) if question.correct_json else ""
+        )
         is_correct = answer == expected
         score = max_score if is_correct else 0
         criteria.append(
@@ -98,7 +100,11 @@ def mark_question(
                 name="Correct option",
                 score=score,
                 max=max_score,
-                notes=["Matched answer key."] if is_correct else [f"Expected option: {expected.upper()}"],
+                notes=(
+                    ["Matched answer key."]
+                    if is_correct
+                    else [f"Expected option: {expected.upper()}"]
+                ),
             )
         )
         if not is_correct:
@@ -108,7 +114,9 @@ def mark_question(
     elif question.type in {"short", "explain_justify", "skill_drill"}:
         rubric = question.rubric_json or {}
         keywords = [str(word).lower() for word in rubric.get("keywords", [])]
-        reasoning_terms = [str(word).lower() for word in rubric.get("reasoning_terms", ["because", "therefore"])]
+        reasoning_terms = [
+            str(word).lower() for word in rubric.get("reasoning_terms", ["because", "therefore"])
+        ]
 
         keyword_hits = sum(1 for word in keywords if word in answer)
         keyword_component = min(max_score - 1 if max_score > 1 else max_score, keyword_hits)
@@ -129,7 +137,11 @@ def mark_question(
                 name="Reasoning quality",
                 score=reasoning_component,
                 max=1 if max_score > 1 else 0,
-                notes=["Reasoning connective present."] if has_reasoning else ["Add explicit justification."],
+                notes=(
+                    ["Reasoning connective present."]
+                    if has_reasoning
+                    else ["Add explicit justification."]
+                ),
             )
         )
 
@@ -187,9 +199,15 @@ def mark_question(
             )
 
     elif question.type == "data":
-        expected_values = (question.correct_json or {}).get("expected_values", []) if question.correct_json else []
+        expected_values = (
+            (question.correct_json or {}).get("expected_values", [])
+            if question.correct_json
+            else []
+        )
         interpretation_keywords = (
-            (question.rubric_json or {}).get("interpretation_keywords", ["trend", "increase", "decrease"])
+            (question.rubric_json or {}).get(
+                "interpretation_keywords", ["trend", "increase", "decrease"]
+            )
             if question.rubric_json
             else ["trend", "increase", "decrease"]
         )
@@ -239,5 +257,7 @@ def mark_question(
         feedback=feedback,
         where_marks_were_lost=missing or ["No major mark losses detected."],
         common_mistakes=tags or ["none"],
-        upgrade_response=_build_upgrade_response(track, integrity_mode, question, missing, answer_text),
+        upgrade_response=_build_upgrade_response(
+            track, integrity_mode, question, missing, answer_text
+        ),
     )

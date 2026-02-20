@@ -24,7 +24,9 @@ def list_sat_projects(
     current_user: User = Depends(get_current_user),
 ) -> list[SATProjectOut]:
     projects = db.scalars(
-        select(SATProject).where(SATProject.user_id == current_user.id).order_by(SATProject.created_at.desc())
+        select(SATProject)
+        .where(SATProject.user_id == current_user.id)
+        .order_by(SATProject.created_at.desc())
     ).all()
     return [SATProjectOut.model_validate(project) for project in projects]
 
@@ -72,11 +74,15 @@ def list_milestones(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[SATMilestoneOut]:
-    project = db.scalar(select(SATProject).where(SATProject.id == project_id, SATProject.user_id == current_user.id))
+    project = db.scalar(
+        select(SATProject).where(SATProject.id == project_id, SATProject.user_id == current_user.id)
+    )
     if not project:
         raise HTTPException(status_code=404, detail="SAT project not found")
     milestones = db.scalars(
-        select(SATMilestone).where(SATMilestone.sat_project_id == project.id).order_by(SATMilestone.part)
+        select(SATMilestone)
+        .where(SATMilestone.sat_project_id == project.id)
+        .order_by(SATMilestone.part)
     ).all()
     return [SATMilestoneOut.model_validate(item) for item in milestones]
 
@@ -88,7 +94,9 @@ def create_evidence_log(
     current_user: User = Depends(get_current_user),
 ) -> EvidenceLogOut:
     project = db.scalar(
-        select(SATProject).where(SATProject.id == payload.sat_project_id, SATProject.user_id == current_user.id)
+        select(SATProject).where(
+            SATProject.id == payload.sat_project_id, SATProject.user_id == current_user.id
+        )
     )
     if not project:
         raise HTTPException(status_code=404, detail="SAT project not found")
@@ -110,24 +118,36 @@ def list_evidence(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ) -> list[EvidenceLogOut]:
-    project = db.scalar(select(SATProject).where(SATProject.id == project_id, SATProject.user_id == current_user.id))
+    project = db.scalar(
+        select(SATProject).where(SATProject.id == project_id, SATProject.user_id == current_user.id)
+    )
     if not project:
         raise HTTPException(status_code=404, detail="SAT project not found")
     entries = db.scalars(
-        select(EvidenceLog).where(EvidenceLog.sat_project_id == project_id).order_by(EvidenceLog.created_at.desc())
+        select(EvidenceLog)
+        .where(EvidenceLog.sat_project_id == project_id)
+        .order_by(EvidenceLog.created_at.desc())
     ).all()
     return [EvidenceLogOut.model_validate(log) for log in entries]
 
 
 @router.get("/{project_id}/export", response_class=HTMLResponse)
-def export_sat(project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)) -> str:
-    project = db.scalar(select(SATProject).where(SATProject.id == project_id, SATProject.user_id == current_user.id))
+def export_sat(
+    project_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)
+) -> str:
+    project = db.scalar(
+        select(SATProject).where(SATProject.id == project_id, SATProject.user_id == current_user.id)
+    )
     if not project:
         raise HTTPException(status_code=404, detail="SAT project not found")
     milestones = db.scalars(
-        select(SATMilestone).where(SATMilestone.sat_project_id == project.id).order_by(SATMilestone.part)
+        select(SATMilestone)
+        .where(SATMilestone.sat_project_id == project.id)
+        .order_by(SATMilestone.part)
     ).all()
     evidence = db.scalars(
-        select(EvidenceLog).where(EvidenceLog.sat_project_id == project.id).order_by(EvidenceLog.created_at.desc())
+        select(EvidenceLog)
+        .where(EvidenceLog.sat_project_id == project.id)
+        .order_by(EvidenceLog.created_at.desc())
     ).all()
     return generate_sat_export_html(project, milestones, evidence)

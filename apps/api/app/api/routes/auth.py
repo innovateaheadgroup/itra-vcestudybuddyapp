@@ -34,7 +34,9 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)) -> AuthTok
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
 
-    user = User(email=payload.email, password_hash=get_password_hash(payload.password), role=payload.role)
+    user = User(
+        email=payload.email, password_hash=get_password_hash(payload.password), role=payload.role
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -101,7 +103,9 @@ def request_password_reset(payload: PasswordResetRequest, db: Session = Depends(
 
 
 @router.post("/password-reset/confirm")
-def confirm_password_reset(payload: PasswordResetConfirmRequest, db: Session = Depends(get_db)) -> dict:
+def confirm_password_reset(
+    payload: PasswordResetConfirmRequest, db: Session = Depends(get_db)
+) -> dict:
     token = db.scalar(select(PasswordResetToken).where(PasswordResetToken.token == payload.token))
     if not token:
         raise HTTPException(status_code=404, detail="Reset token not found")

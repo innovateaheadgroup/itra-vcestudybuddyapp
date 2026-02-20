@@ -68,9 +68,15 @@ def get_daily_session(
         db.commit()
 
     attempts = db.scalars(
-        select(Attempt).where(Attempt.user_id == current_user.id).order_by(desc(Attempt.created_at)).limit(40)
+        select(Attempt)
+        .where(Attempt.user_id == current_user.id)
+        .order_by(desc(Attempt.created_at))
+        .limit(40)
     ).all()
-    trend = [round(item.mastery_score, 3) for item in db.scalars(select(Mastery).where(Mastery.user_id == current_user.id)).all()]
+    trend = [
+        round(item.mastery_score, 3)
+        for item in db.scalars(select(Mastery).where(Mastery.user_id == current_user.id)).all()
+    ]
 
     return QuickWinsSessionOut(
         items=[

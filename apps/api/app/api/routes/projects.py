@@ -72,7 +72,9 @@ def list_project_submissions(
 ) -> list[ProjectSubmissionOut]:
     submissions = db.scalars(
         select(ProjectSubmission)
-        .where(ProjectSubmission.project_id == project_id, ProjectSubmission.user_id == current_user.id)
+        .where(
+            ProjectSubmission.project_id == project_id, ProjectSubmission.user_id == current_user.id
+        )
         .order_by(ProjectSubmission.created_at.desc())
     ).all()
     return [ProjectSubmissionOut.model_validate(submission) for submission in submissions]
