@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vce-prep-buddy-api"
+version = "0.1.0"
+description = "Backend API for VCE Prep Buddy"
+requires-python = ">=3.11"
+dependencies = [
+  "alembic>=1.16.5",
+  "bleach>=6.2.0",
+  "email-validator>=2.3.0",
+  "fastapi>=0.121.1",
+  "markupsafe>=3.0.3",
+  "markdown>=3.9",
+  "pandas>=2.3.3",
+  "passlib[bcrypt]>=1.7.4",
+  "psycopg[binary]>=3.2.12",
+  "pydantic-settings>=2.11.0",
+  "python-jose[cryptography]>=3.5.0",
+  "python-multipart>=0.0.20",
+  "sqlalchemy>=2.0.44",
+  "uvicorn[standard]>=0.38.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "black>=25.9.0",
+  "pytest>=8.4.2",
+  "pytest-cov>=7.0.0",
+  "ruff>=0.14.3"
+]
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501", "B008"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["app*"]
